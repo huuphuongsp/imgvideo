@@ -1,46 +1,342 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Code Generator - Trịnh Hữu Phương</title>
+<style>
+    * { box-sizing: border-box; }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f5f7fa;
+        color: #222;
+    }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    .app-bar {
+        background: #dbeafe;
+        padding: 18px 24px;
+        font-size: 22px;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,.12);
+    }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/">
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+    }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+    .label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: bold;
+    }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="create_img_video">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    .row {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+    .row input {
+        flex: 1;
+    }
 
-  <title>create_img_video</title>
-  <link rel="manifest" href="manifest.json">
+    input {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1px solid #aaa;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+        background: white;
+    }
+
+    input:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25,118,210,.12);
+    }
+
+    button {
+        border: 0;
+        border-radius: 8px;
+        padding: 0 22px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        background: #1976d2;
+        color: white;
+        white-space: nowrap;
+    }
+
+    button:hover {
+        background: #125ea8;
+    }
+
+    .section {
+        margin-top: 22px;
+    }
+
+    .result-title {
+        margin: 0 0 10px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .code-box {
+        position: relative;
+        background: #f1f1f1;
+        border: 1px solid #aaa;
+        border-radius: 8px;
+        padding: 14px;
+    }
+
+    .code-box pre {
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        max-height: 360px;
+        overflow: auto;
+    }
+
+    .copy-button {
+        margin-top: 10px;
+        padding: 9px 16px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .message {
+        position: fixed;
+        left: 50%;
+        bottom: 25px;
+        transform: translateX(-50%);
+        background: #323232;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s;
+        z-index: 1000;
+    }
+
+    .message.show {
+        opacity: 1;
+    }
+
+    @media (max-width: 700px) {
+        .container {
+            padding: 16px;
+        }
+
+        .row {
+            flex-direction: column;
+        }
+
+        button {
+            min-height: 46px;
+        }
+
+        .app-bar {
+            font-size: 18px;
+        }
+    }
+</style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+<header class="app-bar">
+    HTML Code Generator - Trịnh Hữu Phương
+</header>
+
+<main class="container">
+
+    <div>
+        <label class="label" for="link">Nhập link:</label>
+        <div class="row">
+            <input id="link" type="text" placeholder="https://abc.vn/image.jpg">
+            <button type="button" onclick="generateHtml()">Create</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <label class="label" for="count">Nhập số lượng:</label>
+        <div class="row">
+            <input id="count" type="number" min="1" placeholder="Ví dụ: 5">
+            <button type="button" onclick="generateMultipleHtml()">CreateN</button>
+        </div>
+    </div>
+
+    <section id="singleResult" class="section hidden">
+        <h3 class="result-title">Mã HTML được tạo:</h3>
+        <div class="code-box">
+            <pre id="singleCode"></pre>
+            <button class="copy-button" type="button" onclick="copyText('singleCode')">Copy</button>
+        </div>
+    </section>
+
+    <section id="multipleResult" class="section hidden">
+        <h3 class="result-title">Mã HTML nhiều đoạn được tạo:</h3>
+        <div class="code-box">
+            <pre id="multipleCode"></pre>
+            <button class="copy-button" type="button" onclick="copyText('multipleCode')">Copy</button>
+        </div>
+    </section>
+
+</main>
+
+<div id="message" class="message"></div>
+
+<script>
+function showMessage(text) {
+    const message = document.getElementById("message");
+    message.textContent = text;
+    message.classList.add("show");
+
+    setTimeout(() => {
+        message.classList.remove("show");
+    }, 2200);
+}
+
+function escapeHtmlAttribute(value) {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function createHtmlCode(link) {
+    const safeLink = escapeHtmlAttribute(link);
+
+    if (link.toLowerCase().endsWith(".mp4")) {
+        return `<div style="background-color:#f4f9ff; border-radius:10px; border:1px solid #90caf9; box-shadow:0 4px 10px rgba(0, 0, 0, 0.08); font-family:Arial,Helvetica,sans-serif; margin-bottom:20px; margin-left:20px; margin-right:20px; margin-top:20px; max-width:700px; overflow:hidden">
+<div style="padding:24px">
+<div style="background-color:#e0e0e0; border-radius:8px; box-shadow:0 2px 8px rgba(0, 0, 0, 0.15); height:0; overflow:hidden; padding-bottom:56.25%; position:relative">
+<iframe src="${safeLink}"
+style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"></iframe></div>
+</div>
+</div>`;
+    }
+
+    return `<p><img src="${safeLink}"
+style="border-radius:20px; border:2px solid #04aa6d; width:100%" /></p>`;
+}
+
+function generateHtml() {
+    const link = document.getElementById("link").value.trim();
+
+    if (!link) {
+        showMessage("Vui lòng nhập link");
+        return;
+    }
+
+    const code = createHtmlCode(link);
+
+    document.getElementById("singleCode").textContent = code;
+    document.getElementById("singleResult").classList.remove("hidden");
+
+    copyString(code, "Đã tạo và sao chép mã HTML");
+}
+
+function generateMultipleHtml() {
+    const link = document.getElementById("link").value.trim();
+    const countText = document.getElementById("count").value.trim();
+
+    if (!link) {
+        showMessage("Vui lòng nhập link");
+        return;
+    }
+
+    if (!countText) {
+        showMessage("Vui lòng nhập số lượng");
+        return;
+    }
+
+    const count = Number.parseInt(countText, 10);
+
+    if (!Number.isInteger(count) || count <= 0) {
+        showMessage("Số lượng phải là số dương");
+        return;
+    }
+
+    // Tách phần mở rộng của file.
+    // Ví dụ: https://abc.com/image.jpg
+    // baseLink  = https://abc.com/image
+    // extension = .jpg
+    const lastDotIndex = link.lastIndexOf(".");
+
+    if (lastDotIndex === -1) {
+        showMessage("Link không hợp lệ - thiếu phần mở rộng");
+        return;
+    }
+
+    const baseLink = link.substring(0, lastDotIndex);
+    const extension = link.substring(lastDotIndex);
+    const result = [];
+
+    // Sinh đúng count đoạn HTML:
+    // image1.jpg, image2.jpg, ... imageN.jpg
+    for (let i = 1; i <= count; i++) {
+        const numberedLink = baseLink + i + extension;
+
+        const htmlCode = `<p><img src="${numberedLink}" 
+style="border-radius:20px; border:2px solid #04aa6d; width:100%" /></p>`;
+
+        result.push(htmlCode);
+    }
+
+    // Mỗi đoạn cách nhau một dòng trống.
+    const multipleHtml = result.join("\n");
+
+    document.getElementById("multipleCode").textContent = multipleHtml;
+    document.getElementById("multipleResult").classList.remove("hidden");
+
+    copyString(multipleHtml, `Đã tạo và sao chép ${count} đoạn mã HTML`);
+}
+async function copyString(text, successMessage) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showMessage(successMessage);
+    } catch (error) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+            showMessage(successMessage);
+        } catch (e) {
+            showMessage("Không thể tự động sao chép mã");
+        }
+
+        textarea.remove();
+    }
+}
+
+function copyText(elementId) {
+    const text = document.getElementById(elementId).textContent;
+
+    if (!text) {
+        showMessage("Không có mã HTML để sao chép");
+        return;
+    }
+
+    copyString(text, "Đã sao chép mã HTML");
+}
+</script>
+
 </body>
 </html>
